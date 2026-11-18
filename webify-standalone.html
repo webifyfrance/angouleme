@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webify France Angoulême</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap">
+
+<script>
+  const VILLE = {
+    nom: "Angoulême",
+    departement: "Charente (16)",
+    popup_video: "https://res.cloudinary.com/kybwjiwk/video/upload/v1795000571/morphings-9x16.mp4",
+    morphing_videos: [
+      "https://res.cloudinary.com/kybwjiwk/video/upload/v1795000570/morphing-only.mp4",
+      "https://res.cloudinary.com/kybwjiwk/video/upload/v1795000570/morphing-only_1.mp4"
+    ]
+  };
+</script>
+
+
+<!-- ══════════════════════════════════════
+     CONFIG VILLE — changer ici pour adapter
+     ══════════════════════════════════════ -->
+<script>
+  const VILLE = {
+    nom: "Angoulême",
+    departement: "Charente (16)",
+    // Vidéos morphing Higgsfield
+    popup_video: "https://res.cloudinary.com/kybwjiwk/video/upload/v1795000571/morphings-9x16.mp4",
+    morphing_videos: [
+      "https://res.cloudinary.com/kybwjiwk/video/upload/v1795000570/morphing-only.mp4",
+      "https://res.cloudinary.com/kybwjiwk/video/upload/v1795000570/morphing-only_1.mp4"
+    ]
+  };
+</script>
+
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F0EDE6; --fg: #1A1917; --fg-muted: #6B6760;
+  --accent: #2D5A3D; --accent-light: #E8F0EB; --accent-dark: #1E3D2A;
+  --gold: #C8A96A; --border: #DDD9D2; --white: #FFFFFF; --card-bg: #FFFFFF;
+  --shadow: 0 2px 16px rgba(0,0,0,.07);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#141412;--bg2:#1E1D1A;--fg:#F0EDE6;--fg-muted:#9B9790;
+    --accent:#4A8A5E;--accent-light:#1A2E20;--accent-dark:#6AAF80;
+    --border:#2E2D29;--white:#1E1D1A;--card-bg:#1E1D1A;
+    --shadow:0 2px 20px rgba(0,0,0,.3);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#141412;--bg2:#1E1D1A;--fg:#F0EDE6;--fg-muted:#9B9790;
+  --accent:#4A8A5E;--accent-light:#1A2E20;--accent-dark:#6AAF80;
+  --border:#2E2D29;--white:#1E1D1A;--card-bg:#1E1D1A;
+  --shadow:0 2px 20px rgba(0,0,0,.3);color-scheme:dark;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.6;margin:0;}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));}
+
+/* ── POPUP ── */
+#popup-overlay {
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
+  padding:16px;
+  opacity:1;transition:opacity .3s;
+}
+#popup-overlay.closing{opacity:0;pointer-events:none;}
+#popup-box {
+  background:var(--card-bg);
+  border-radius:20px;
+  max-width:700px;width:100%;
+  box-shadow:0 32px 80px rgba(0,0,0,.45);
+  overflow:hidden;
+  transform:scale(1);transition:transform .3s;
+}
+#popup-overlay.closing #popup-box{transform:scale(.95);}
+.popup-header {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 22px 14px;
+  border-bottom:1px solid var(--border);
+}
+.popup-header-left .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:2px;}
+.popup-header-left .title{font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--fg);}
+.popup-close {
+  background:var(--bg2);border:none;cursor:pointer;
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--fg-muted);font-size:1.1rem;line-height:1;
+  transition:background .15s;flex-shrink:0;
+}
+.popup-close:hover{background:var(--border);}
+
+/* carousel */
+.popup-carousel{position:relative;background:#000;}
+.popup-slides{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1);}
+.popup-slide{flex:0 0 100%;aspect-ratio:4/3;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.popup-slide img{width:100%;height:100%;object-fit:cover;}
+.popup-slide video{width:100%;height:100%;object-fit:cover;}
+.slide-label{
+  position:absolute;bottom:12px;left:12px;
+  background:rgba(0,0,0,.55);color:#fff;
+  font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 10px;border-radius:100px;backdrop-filter:blur(4px);
+}
+.carousel-btn {
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,.18);border:none;cursor:pointer;
+  color:#fff;width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;backdrop-filter:blur(4px);transition:background .15s;
+}
+.carousel-btn:hover{background:rgba(255,255,255,.35);}
+.carousel-btn.prev{left:10px;}
+.carousel-btn.next{right:10px;}
+.carousel-dots{
+  display:flex;justify-content:center;gap:6px;
+  padding:12px 0 6px;background:var(--card-bg);
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:background .2s;}
+.dot.active{background:var(--accent);}
+
+.popup-footer{
+  padding:16px 22px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.popup-footer p{margin:0;font-size:.88rem;color:var(--fg-muted);flex:1;min-width:0;}
+.popup-footer p strong{color:var(--fg);}
+.popup-cta{
+  background:var(--accent);color:#fff;
+  font-family:var(--font-body);font-size:.9rem;font-weight:600;
+  border:none;border-radius:100px;padding:10px 22px;cursor:pointer;
+  white-space:nowrap;transition:background .2s;text-decoration:none;display:inline-block;
+}
+.popup-cta:hover{background:var(--accent-dark);}
+
+/* ── Morphing grid ── */
+.morphing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+.morphing-item {
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 9/16;
+  background: #000;
+}
+.morphing-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (max-width: 500px) {
+  .morphing-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Popup vidéo portrait 9x16 ── */
+#popup-box {
+  max-width: 380px;
+  width: 92vw;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.popup-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  background: linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 100%);
+  border-bottom: none;
+  padding: 14px 16px 24px;
+}
+.popup-header-left .eyebrow { color: #fff; }
+.popup-header-left .title { color: #fff; }
+.popup-close { background: rgba(255,255,255,.2); color: #fff; }
+.popup-close:hover { background: rgba(255,255,255,.35); }
+.popup-carousel {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/16;
+  max-height: 80vh;
+  background: #000;
+  overflow: hidden;
+}
+.popup-slides {
+  width: 100%; height: 100%;
+  transition: none;
+}
+.popup-slide {
+  width: 100%; height: 100%;
+  flex: none;
+}
+.popup-slide video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.popup-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 100%);
+  padding: 24px 16px 16px;
+}
+.popup-footer p { color: rgba(255,255,255,.85); font-size: .82rem; }
+.popup-footer p strong { color: #fff; }
+.popup-cta {
+  background: #fff;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── NAV ── */
+nav{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:env(safe-area-inset-top,0px);z-index:10;}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;padding-block:14px;}
+.logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;color:var(--accent);letter-spacing:.02em;}
+.logo span{color:var(--gold);}
+nav a.cta-nav{background:var(--accent);color:#fff;text-decoration:none;font-size:.85rem;font-weight:600;padding:8px 18px;border-radius:100px;transition:background .2s;}
+nav a.cta-nav:hover{background:var(--accent-dark);}
+
+/* ── HERO ── */
+.hero{background:var(--bg2);padding-block:72px 60px;text-align:center;border-bottom:1px solid var(--border);}
+.hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-light);padding:5px 14px;border-radius:100px;margin-bottom:24px;}
+.hero h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.15;text-wrap:balance;margin:0 0 20px;color:var(--fg);}
+.hero h1 em{font-style:normal;color:var(--accent);}
+.hero p{font-size:1.1rem;color:var(--fg-muted);max-width:540px;margin:0 auto 36px;text-wrap:balance;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:600;font-size:1rem;padding:14px 32px;border-radius:100px;text-decoration:none;transition:background .2s,transform .15s;box-shadow:0 4px 16px rgba(45,90,61,.25);}
+.hero-cta:hover{background:var(--accent-dark);transform:translateY(-1px);}
+.hero-cta svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;}
+.hero-play{display:inline-flex;align-items:center;gap:8px;background:transparent;border:2px solid var(--accent);color:var(--accent);font-weight:600;font-size:1rem;padding:12px 24px;border-radius:100px;cursor:pointer;font-family:var(--font-body);transition:background .2s,color .2s;}
+.hero-play:hover{background:var(--accent);color:#fff;}
+
+/* ── PROOF ── */
+.proof-bar{background:var(--accent);color:#fff;}
+.proof-bar .wrap{display:flex;justify-content:center;gap:48px;padding-block:20px;flex-wrap:wrap;}
+.proof-item{text-align:center;font-size:.85rem;opacity:.9;}
+.proof-item strong{display:block;font-family:var(--font-display);font-size:1.5rem;font-weight:700;opacity:1;color:var(--gold);}
+
+/* ── SECTION ── */
+.section{padding-block:64px;}
+.section-label{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.section h2{font-family:var(--font-display);font-size:clamp(1.5rem,3.5vw,2.1rem);font-weight:700;text-wrap:balance;margin:0 0 40px;}
+.steps{display:flex;flex-direction:column;gap:24px;}
+.step{display:flex;gap:20px;align-items:flex-start;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px;box-shadow:var(--shadow);}
+.step-num{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;}
+.step h3{margin:0 0 4px;font-size:1rem;font-weight:600;}
+.step p{margin:0;color:var(--fg-muted);font-size:.9rem;}
+
+/* ── BA SECTION ── */
+.ba-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;}
+@media(max-width:520px){.ba-grid{grid-template-columns:1fr;}}
+.ba-card{border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--card-bg);}
+.ba-label{padding:8px 14px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.ba-label.before{background:#F5E6E6;color:#8B2020;}
+.ba-label.after{background:var(--accent-light);color:var(--accent);}
+.ba-visual{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg2);}
+.ba-visual img{width:100%;height:100%;object-fit:cover;}
+
+/* ── FORM ── */
+.form-section{background:var(--white);border-top:1px solid var(--border);}
+.form-box{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:40px;box-shadow:var(--shadow);max-width:580px;margin:0 auto;}
+.form-box h2{font-family:var(--font-display);font-size:1.6rem;font-weight:700;margin:0 0 6px;text-wrap:balance;}
+.form-box .sub{color:var(--fg-muted);font-size:.9rem;margin-bottom:28px;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+.field label{font-size:.85rem;font-weight:600;color:var(--fg);}
+.field input,.field select,.field textarea{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;font-family:var(--font-body);font-size:.95rem;color:var(--fg);outline:none;transition:border-color .15s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:90px;}
+.field select{appearance:none;cursor:pointer;}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:480px){.row-2{grid-template-columns:1fr;}}
+.form-submit{width:100%;background:var(--accent);color:#fff;font-family:var(--font-body);font-size:1rem;font-weight:600;border:none;border-radius:100px;padding:14px;cursor:pointer;transition:background .2s,transform .15s;margin-top:8px;}
+.form-submit:hover{background:var(--accent-dark);transform:translateY(-1px);}
+.privacy-note{font-size:.78rem;color:var(--fg-muted);text-align:center;margin-top:14px;}
+#success{text-align:center;padding:48px 24px;}
+#success .check{width:56px;height:56px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 20px;}
+#success h3{font-family:var(--font-display);font-size:1.4rem;margin:0 0 10px;}
+#success p{color:var(--fg-muted);font-size:.95rem;margin:0;}
+
+/* ── FOOTER ── */
+footer{background:var(--fg);color:rgba(255,255,255,.55);font-size:.82rem;text-align:center;padding-block:24px;}
+footer strong{color:rgba(255,255,255,.85);}
+footer .footer-email{color:var(--gold);}
+</style>
+
+<!-- ══ POPUP VIDÉO ══ -->
+<div id="popup-overlay">
+  <div id="popup-box">
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="eyebrow">Home Staging IA · <span class="ville-nom"></span></div>
+        <div class="title">Voyez la transformation en direct ✨</div>
+      </div>
+      <button class="popup-close" id="popup-close-btn" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="popup-carousel" id="popup-carousel">
+      <div class="popup-slides" id="popup-slides"></div>
+      <div class="slide-label" id="slide-label"></div>
+      <button class="carousel-btn prev" id="carousel-prev">&#8249;</button>
+      <button class="carousel-btn next" id="carousel-next">&#8250;</button>
+    </div>
+    <div class="carousel-dots" id="carousel-dots"></div>
+
+    <div class="popup-footer">
+      <p>Résultats obtenus pour des propriétaires à <strong class="ville-nom"></strong>. Livraison en <strong>48h</strong>.</p>
+      <button class="popup-cta" id="popup-cta-btn">Je veux le même →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="wrap">
+    <div class="logo">Webify<span>.</span>France</div>
+    <a class="cta-nav" href="#contact">Devis gratuit →</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Home Staging IA · <span class="ville-nom"></span></div>
+    <h1>Vendez votre bien<br><em>plus vite et plus cher</em></h1>
+    <p>Transformez vos photos vides en espaces de vie désirables grâce à l'IA — sans meubles, sans chantier, en 48 heures.</p>
+    <div class="hero-btns">
+      <a class="hero-cta" href="#contact">
+        Obtenir mon devis gratuit
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <button class="hero-play" id="hero-play-btn">
+        ▶ Voir les transformations
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROOF ══ -->
+<div class="proof-bar">
+  <div class="wrap">
+    <div class="proof-item"><strong>48h</strong>Délai de livraison</div>
+    <div class="proof-item"><strong>+30%</strong>Visites générées</div>
+    <div class="proof-item"><strong>100%</strong>Digital — zéro déplacement</div>
+  </div>
+</div>
+
+<!-- ══ COMMENT ÇA MARCHE ══ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-label">Comment ça marche</div>
+    <h2>Simple comme un envoi de photos</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Vous remplissez le formulaire</h3>
+          <p>Décrivez votre bien, le nombre de pièces à stager et vos préférences de style. 2 minutes chrono.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Vous envoyez vos photos vides</h3>
+          <p>Pas besoin de déplacer quoi que ce soit. Des photos nettes de chaque pièce suffisent.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>On livre vos visuels en 48h</h3>
+          <p>Des rendus photoréalistes, prêts à publier sur les portails immobiliers. Corrections incluses.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MORPHINGS ══ -->
+<section class="section ba-section">
+  <div class="wrap">
+    <div class="section-label">Transformations réelles · <span class="ville-nom"></span></div>
+    <h2>Voyez la magie opérer en temps réel</h2>
+    <div class="morphing-grid" id="morphing-grid"></div>
+    <p style="text-align:center;color:var(--fg-muted);font-size:.88rem;margin-top:16px;">
+      Résultats réels obtenus à <span class="ville-nom"></span> — livrés en 48h
+    </p>
+  </div>
+</section>
+
+<!-- ══ FORMULAIRE ══ -->
+<section class="section form-section" id="contact">
+  <div class="wrap">
+    <div class="form-box">
+      <div id="form-view">
+        <h2>Devis gratuit · <span class="ville-nom"></span></h2>
+        <p class="sub">Répondez en 2 minutes — nous vous rappelons sous 24h.</p>
+        <form id="contact-form" novalidate>
+          <div class="row-2">
+            <div class="field">
+              <label for="prenom">Prénom *</label>
+              <input type="text" id="prenom" name="prenom" placeholder="Jean" required>
+            </div>
+            <div class="field">
+              <label for="nom">Nom *</label>
+              <input type="text" id="nom" name="nom" placeholder="Dupont" required>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" placeholder="jean@email.com" required>
+            </div>
+            <div class="field">
+              <label for="telephone">Téléphone *</label>
+              <input type="tel" id="telephone" name="telephone" placeholder="06 00 00 00 00" required>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="type-bien">Type de bien *</label>
+              <select id="type-bien" name="type-bien" required>
+                <option value="">Choisir…</option>
+                <option>Appartement</option>
+                <option>Maison</option>
+                <option>Studio</option>
+                <option>Loft / Duplex</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="nb-pieces">Nombre de pièces *</label>
+              <select id="nb-pieces" name="nb-pieces" required>
+                <option value="">Choisir…</option>
+                <option>1 pièce (studio)</option>
+                <option>2 pièces</option>
+                <option>3 pièces</option>
+                <option>4 pièces</option>
+                <option>5 pièces et +</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="style">Style de staging souhaité</label>
+            <select id="style" name="style">
+              <option value="">Pas de préférence</option>
+              <option>Scandinave / Nordique</option>
+              <option>Contemporain</option>
+              <option>Industriel / Loft</option>
+              <option>Classique / Haussmannien</option>
+              <option>Minimaliste</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="message">Informations complémentaires</label>
+            <textarea id="message" name="message" placeholder="Ex : besoin urgent, type d'acheteur ciblé, contraintes particulières…"></textarea>
+          </div>
+          <button type="submit" class="form-submit">Envoyer ma demande →</button>
+          <p class="privacy-note">🔒 Vos données sont confidentielles et ne seront jamais revendues.</p>
+        </form>
+      </div>
+      <div id="success" hidden>
+        <div class="check">✓</div>
+        <h3>Demande reçue !</h3>
+        <p>Merci. Notre équipe vous contacte sous <strong>24h</strong> pour établir votre devis gratuit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="wrap">
+    <strong>Webify France</strong> · Home Staging par IA · <span class="ville-nom"></span><br>
+    <span class="footer-email">contact@webify-france.fr</span>
+  </div>
+</footer>
+
+<script>
+// ── Injecter le nom de ville partout ──
+document.querySelectorAll('.ville-nom').forEach(el => { el.textContent = VILLE.nom; });
+
+
+// ── Popup vidéo ──
+const slidesEl = document.getElementById('popup-slides');
+const popupSlide = document.createElement('div');
+popupSlide.className = 'popup-slide';
+const popupVideo = document.createElement('video');
+popupVideo.src = VILLE.popup_video;
+popupVideo.muted = true;
+popupVideo.loop = true;
+popupVideo.playsInline = true;
+popupVideo.setAttribute('playsinline', '');
+popupVideo.setAttribute('webkit-playsinline', '');
+popupVideo.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+popupSlide.appendChild(popupVideo);
+slidesEl.appendChild(popupSlide);
+// Masquer nav carousel (1 seule vidéo)
+document.getElementById('carousel-prev').hidden = true;
+document.getElementById('carousel-next').hidden = true;
+document.getElementById('carousel-dots').hidden = true;
+document.getElementById('slide-label').hidden = true;
+
+// ── Morphings côte à côte ──
+const morphingGrid = document.getElementById('morphing-grid');
+const morphingVideoEls = [];
+VILLE.morphing_videos.forEach(url => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'morphing-item';
+  const v = document.createElement('video');
+  v.src = url;
+  v.muted = true;
+  v.loop = true;
+  v.playsInline = true;
+  v.setAttribute('playsinline', '');
+  v.setAttribute('webkit-playsinline', '');
+  v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+  wrapper.appendChild(v);
+  morphingGrid.appendChild(wrapper);
+  morphingVideoEls.push(v);
+});
+
+// Lancer les vidéos morphing dès que la page est visible
+function tryPlayAll() {
+  morphingVideoEls.forEach(v => v.play().catch(() => {}));
+}
+if (document.visibilityState === 'visible') tryPlayAll();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') tryPlayAll(); });
+document.addEventListener('click', tryPlayAll, { once: true });
+document.addEventListener('touchstart', tryPlayAll, { once: true });
+
+// ── Fermer popup ──
+function closePopup() {
+  const overlay = document.getElementById('popup-overlay');
+  overlay.classList.add('closing');
+  popupVideo.pause();
+  setTimeout(() => { overlay.hidden = true; }, 300);
+}
+function openPopup() {
+  const overlay = document.getElementById('popup-overlay');
+  overlay.hidden = false;
+  overlay.classList.remove('closing');
+  popupVideo.currentTime = 0;
+  popupVideo.play().catch(() => {});
+}
+document.getElementById('popup-close-btn').addEventListener('click', closePopup);
+document.getElementById('popup-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePopup(); });
+document.getElementById('popup-cta-btn').addEventListener('click', () => {
+  closePopup();
+  setTimeout(() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }), 150);
+});
+document.getElementById('hero-play-btn').addEventListener('click', openPopup);
+
+// Popup auto au chargement : attendre un clic/touch pour lancer la vidéo
+const overlay = document.getElementById('popup-overlay');
+overlay.addEventListener('click', () => { popupVideo.play().catch(() => {}); }, { once: true });
+overlay.addEventListener('touchstart', () => { popupVideo.play().catch(() => {}); }, { once: true });
+// Afficher un bouton play central si la vidéo ne se lance pas
+popupVideo.addEventListener('canplay', () => {
+  popupVideo.play().catch(() => {
+    // Afficher bouton play
+    const btn = document.createElement('button');
+    btn.innerHTML = '&#9654;';
+    btn.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:72px;height:72px;cursor:pointer;color:#fff;backdrop-filter:blur(4px);z-index:5;';
+    btn.addEventListener('click', e => { e.stopPropagation(); popupVideo.play(); btn.remove(); });
+    document.getElementById('popup-carousel').appendChild(btn);
+  });
+});
+
+// ── Formulaire ──
+const form = document.getElementById('contact-form');
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const required = form.querySelectorAll('[required]');
+  let valid = true;
+  required.forEach(el => {
+    el.style.borderColor = '';
+    if (!el.value.trim()) { el.style.borderColor = '#C0392B'; valid = false; }
+  });
+  if (!valid) return;
+  document.getElementById('form-view').hidden = true;
+  document.getElementById('success').hidden = false;
+});
+document.querySelectorAll('a[href="#contact"]').forEach(a => {
+  a.addEventListener('click', e => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }); });
+});
+</script>
+</body></html>
